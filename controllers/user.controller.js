@@ -7,7 +7,7 @@ const Favorite = require("../models/Favorite.model");
 module.exports.userController = {
   // Регистрация пользователя
   registration: async (req, res) => {
-    const { login, password, name} = req.body;
+    const { login, password, name } = req.body;
     const candidate = await User.findOne({ login });
     if (candidate) {
       return res
@@ -54,5 +54,49 @@ module.exports.userController = {
   getUser: async (req, res) => {
     const data = await User.findById(req.user.id);
     res.json(data);
+  },
+
+  // обновление данных пользователя
+  updateUser: async (req, res) => {
+    const { name, subName, phone, address, email, password } = req.body;
+    const userId = req.user.id;
+    try {
+      // Найти пользователя по его ID
+      const user = await User.findById(userId);
+      console.log(userId)
+
+      if (!user) {
+        return res.status(404).json({ error: "Пользователь не найден" });
+      }
+      const hash = await bcrypt.hash(password, Number(process.env.BCRYPT_ROUNDS));
+      // Обновить свойства пользователя
+      user.name = name || user.name;
+      user.subName = subName || user.subName;
+      user.phone = phone || user.phone;
+      user.address = address || user.address;
+      user.email = email || user.email;
+      user.password = hash || user.password;
+
+      // Сохранить обновленные данные пользователя
+      await user.save();
+
+      res.json(user);
+
+    } catch (error) {
+      res.status(500).json({ error: "Ошибка при обновлении данных пользователя" });
+    }
+  },
+
+  deleteUser: async (req, res) => {
+    const userId = req.user.id;
+
+    try {
+      // Найти пользователя по его ID
+     await User.findByIdAndDelete(userId);
+
+      res.json({ message: "Пользователь успешно удален" });
+    } catch (error) {
+      res.status(500).json({ error: "Ошибка при удалении пользователя" });
+    }
   },
 };
