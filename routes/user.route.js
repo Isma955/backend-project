@@ -7,5 +7,6 @@ const router = Router();
 router.post("/registration", userController.registration); // Регистрация пользователя
 router.post("/login", userController.login); // Вход в учетную запись
 router.get("/user", authMiddleware, userController.getUser); // вывод пользователя
-
+router.patch("/user/update", authMiddleware, userController.updateUser); // изменение данных
+router.delete("/user/delete", authMiddleware, userController.deleteUser); // удаление пользователя
 module.exports = router;
