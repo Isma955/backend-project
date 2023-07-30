@@ -58,7 +58,7 @@ module.exports.userController = {
 
   // обновление данных пользователя
   updateUser: async (req, res) => {
-    const { name, subName, phone, address, email, password } = req.body;
+    const { name, subName, phone, address, email, password, country, city, zipCode } = req.body;
     const userId = req.user.id;
     try {
       // Найти пользователя по его ID
@@ -76,6 +76,9 @@ module.exports.userController = {
       user.address = address || user.address;
       user.email = email || user.email;
       user.password = hash || user.password;
+      user.country = country || user.country;
+      user.city = city || user.city;
+      user.zipCode = zipCode || user.zipCode;
 
       // Сохранить обновленные данные пользователя
       await user.save();
@@ -92,7 +95,7 @@ module.exports.userController = {
 
     try {
       // Найти пользователя по его ID
-     await User.findByIdAndDelete(userId);
+      await User.findByIdAndDelete(userId);
 
       res.json({ message: "Пользователь успешно удален" });
     } catch (error) {
