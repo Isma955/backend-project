@@ -35,11 +35,11 @@ module.exports.clothesController = {
         category: req.body.category,
         image: req.files,
         size: [
-          { size: "XS", inStock: 0 },
-          { size: "S", inStock: 0 },
-          { size: "M", inStock: 0 },
-          { size: "L", inStock: 0 },
-          { size: "XL", inStock: 0 },
+          { size: "XS", inStock: 100 },
+          { size: "S", inStock: 100 },
+          { size: "M", inStock: 100 },
+          { size: "L", inStock: 100 },
+          { size: "XL", inStock: 100 },
         ],
         discount: req.body.discount,
       });
