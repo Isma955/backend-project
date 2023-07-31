@@ -10,7 +10,7 @@ module.exports.cartController = {
     try {
       // Найти корзину пользователя по userId и заполнить информацию о товарах с помощью `populate`
       const data = await Cart.findOne({ userId: req.user.id }).populate({
-        path: 'clothes.cloth',
+        path: 'cart.cloth',
       });
       res.json(data);
     } catch (error) {
@@ -22,79 +22,80 @@ module.exports.cartController = {
   // Добавление товара в корзину пользователя
   addCloth: async (req, res) => {
     try {
-      const { id } = req.params;
-      // Найти информацию о размерах товара по его идентификатору
-      const { size } = await Cloth.findById(id);
-      const { inStock } = size.find((item) => item.size === req.body.size);
-      console.log(inStock);
-      const { clothes } = await Cart.findOne({ userId: req.user.id });
+      const { size } = await Cloth.findById(req.params.id);
+      const { inStock } = size.find((item) => item.size === req.body.mySize);
+      const { cart } = await (await Cart.findOne({ userId: req.user.id }));
 
-      // Проверить, есть ли уже такой товар в корзине пользователя и сколько доступно в наличии
-      const inCart = clothes.find(
-        (item) => item.cloth.toString() === id && item.size === req.body.size
+      const haveCartCloth = cart.find(
+        (item) =>
+          item.cloth.toString() === req.params.id && item.size === req.body.mySize
       );
 
-      // Проверить наличие товара в базе данных и его доступность в наличии
-      if (!inCart && inStock === 0) {
-        res.json('Товара нет в наличии');
-        return;
-      }
-
-      // Обновление корзины пользователя: увеличить количество товара, если он уже есть в корзине,
-      // или добавить новый элемент в корзину
-      const newCart = clothes.map((item) => {
-        if (item.cloth.toString() === id && item.size === req.body.size) {
-          item.amount += 1;
+      if(haveCartCloth) {
+        const newCart = cart.map((item) => {
+            if (
+              item.cloth.toString() === req.params.id &&
+              item.size === req.body.mySize
+            ) {
+              item.amount++;
+              return item;
+            }
+            return item;
+          });
+          await Cart.findOneAndUpdate(
+            { userId: req.user.id },
+            { cart: newCart }
+          );
+          return res.json("Добавлен в корзину");
         }
-        return item;
-      });
+        
+        await Cart.findOneAndUpdate(
+            { userId: req.user.id },
+            { $push: { cart: { cloth: req.params.id, size: req.body.mySize } } }
+          );
+          const updateCart = await Cart.findOne({ userId: req.user.id }).populate(
+            "cart.cloth"
+          );
+          const newCloth = updateCart.cart.pop();
+          return res.json(newCloth);
 
-      if (!inCart) {
-        newCart.push({ cloth: id, size: req.body.size });
-      }
-
-      // Сохранить обновленную корзину в базе данных
-      await Cart.findOneAndUpdate({ userId: req.user.id }, { cart: newCart });
-      res.json(existingCartItem ? 'Товар добавлен в корзину' : 'Товара нет в наличии');
     } catch (error) {
-      // Обработка ошибки при добавлении товара в корзину
-      res.status(500).json({ error: 'ошибка добавления в корзину' });
+      res.json(`${error}: error add cloth`);
     }
   },
 
   // Уменьшение количества товара в корзине пользователя
   minusCloth: async (req, res) => {
     try {
-      const { id } = req.params;
-      const { clothes } = await Cart.findOne({ userId: req.user.id });
-
-      // Уменьшить количество товара в корзине, если оно больше 1
-      const newCart = clothes.map((item) => {
-        if (item.cloth.toString() === id && item.size === req.body.size) {
-            // уменьшаем на 1 но не меньше 0
-          item.amount = Math.max(item.amount - 1, 0);
-        }
-        return item;
-      });
-
-      // Сохранить обновленную корзину в базе данных
-      await Cart.findOneAndUpdate({ userId: req.user.id }, { cart: newCart });
-      res.json('Товар удален с корзины');
-    } catch (error) {
-      // Обработка ошибки при уменьшении количества товара в корзине
-      res.status(500).json({ error: 'Ошибка при удалении товара с корзины' });
-    }
+        const { cart } = await Cart.findOne({ userId: req.user.id });
+        const newCart = cart.map((item) => {
+          if (
+            item.cloth.toString() === req.params.id &&
+            item.size === req.body.mySize
+          ) {
+            if (item.amount > 1) {
+              item.amount--;
+            }
+            return item;
+          }
+          return item;
+        });
+        await Cart.findOneAndUpdate({ userId: req.user.id }, { cart: newCart });
+        res.json("Удален из корзины");
+      } catch (error) {
+        res.json(`${error}: error add cloth`);
+      }
   },
 
   // Удаление товара из корзины пользователя
   removeCloth: async (req, res) => {
     try {
       const { id } = req.params;
-      const { clothes } = await Cart.findOne({ userId: req.user.id });
+      const { cart } = await Cart.findOne({ userId: req.user.id });
 
       // Фильтрация корзины, чтобы удалить товар с заданным id и размером
-      const newCart = clothes.filter(
-        (item) => item.cloth.toString() !== id || item.size !== req.body.size
+      const newCart = cart.filter(
+        (item) => item.cloth.toString() !== id || item.size !== req.body.mySize
       );
 
       // Сохранить обновленную корзину в базе данных
