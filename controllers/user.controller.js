@@ -75,7 +75,7 @@ module.exports.userController = {
       user.phone = phone || user.phone;
       user.address = address || user.address;
       user.email = email || user.email;
-      user.password = hash || user.password;
+      user.password = password !== '' ? hash : user.password;
       user.country = country || user.country;
       user.city = city || user.city;
       user.zipCode = zipCode || user.zipCode;
