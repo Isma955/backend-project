@@ -26,6 +26,7 @@ module.exports.cartController = {
       // Найти информацию о размерах товара по его идентификатору
       const { size } = await Cloth.findById(id);
       const { inStock } = size.find((item) => item.size === req.body.size);
+      console.log(inStock);
       const { clothes } = await Cart.findOne({ userId: req.user.id });
 
       // Проверить, есть ли уже такой товар в корзине пользователя и сколько доступно в наличии
