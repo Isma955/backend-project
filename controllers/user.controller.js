@@ -3,6 +3,7 @@ const User = require("../models/User.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Favorite = require("../models/Favorite.model");
+const Cart = require("../models/Cart.model");
 
 module.exports.userController = {
   // Регистрация пользователя
@@ -23,6 +24,9 @@ module.exports.userController = {
       password: hash,
     });
     await Favorite.create({
+      userId: user._id
+    })
+    await Cart.create({
       userId: user._id
     })
     res.json(user);
