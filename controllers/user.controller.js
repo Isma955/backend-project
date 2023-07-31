@@ -3,6 +3,7 @@ const User = require("../models/User.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Favorite = require("../models/Favorite.model");
+const Cart = require("../models/Cart.model");
 
 module.exports.userController = {
   // Регистрация пользователя
@@ -23,6 +24,9 @@ module.exports.userController = {
       password: hash,
     });
     await Favorite.create({
+      userId: user._id
+    })
+    await Cart.create({
       userId: user._id
     })
     res.json(user);
@@ -58,7 +62,7 @@ module.exports.userController = {
 
   // обновление данных пользователя
   updateUser: async (req, res) => {
-    const { name, subName, phone, address, email, password } = req.body;
+    const { name, subName, phone, address, email, password, country, city, zipCode } = req.body;
     const userId = req.user.id;
     try {
       // Найти пользователя по его ID
@@ -75,7 +79,10 @@ module.exports.userController = {
       user.phone = phone || user.phone;
       user.address = address || user.address;
       user.email = email || user.email;
-      user.password = hash || user.password;
+      user.password = password !== '' ? hash : user.password;
+      user.country = country || user.country;
+      user.city = city || user.city;
+      user.zipCode = zipCode || user.zipCode;
 
       // Сохранить обновленные данные пользователя
       await user.save();
@@ -92,7 +99,7 @@ module.exports.userController = {
 
     try {
       // Найти пользователя по его ID
-     await User.findByIdAndDelete(userId);
+      await User.findByIdAndDelete(userId);
 
       res.json({ message: "Пользователь успешно удален" });
     } catch (error) {

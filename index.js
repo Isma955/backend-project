@@ -14,6 +14,8 @@ app.use(require("./routes/clothes.route"));
 app.use(require("./routes/categories.route"));
 app.use(require("./routes/order.route"));
 app.use(require("./routes/favorites.route"));
+app.use(require("./routes/cart.route"));
+
 mongoose
   .connect(
     process.env.MONGODB,

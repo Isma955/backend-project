@@ -8,6 +8,11 @@ const userSchema = mongoose.Schema({
   phone: String,
   address: String,
   email: String,
+  country: String,
+  city: String,
+  zipCode: String
+
+
 });
 
 const User = mongoose.model("User", userSchema);
