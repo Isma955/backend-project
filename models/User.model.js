@@ -10,9 +10,8 @@ const userSchema = mongoose.Schema({
   email: String,
   country: String,
   city: String,
-  zipCode: String
-
-
+  zipCode: String,
+  role: String,
 });
 
 const User = mongoose.model("User", userSchema);
