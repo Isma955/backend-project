@@ -22,13 +22,14 @@ module.exports.userController = {
       name: name,
       login: login,
       password: hash,
+      role: "user",
     });
     await Favorite.create({
-      userId: user._id
-    })
+      userId: user._id,
+    });
     await Cart.create({
-      userId: user._id
-    })
+      userId: user._id,
+    });
     res.json(user);
   },
   // Вход в учетную запись
@@ -62,24 +63,37 @@ module.exports.userController = {
 
   // обновление данных пользователя
   updateUser: async (req, res) => {
-    const { name, subName, phone, address, email, password, country, city, zipCode } = req.body;
+    const {
+      name,
+      subName,
+      phone,
+      address,
+      email,
+      password,
+      country,
+      city,
+      zipCode,
+    } = req.body;
     const userId = req.user.id;
     try {
       // Найти пользователя по его ID
       const user = await User.findById(userId);
-      console.log(userId)
+      console.log(userId);
 
       if (!user) {
         return res.status(404).json({ error: "Пользователь не найден" });
       }
-      const hash = await bcrypt.hash(password, Number(process.env.BCRYPT_ROUNDS));
+      const hash = await bcrypt.hash(
+        password,
+        Number(process.env.BCRYPT_ROUNDS)
+      );
       // Обновить свойства пользователя
       user.name = name || user.name;
       user.subName = subName || user.subName;
       user.phone = phone || user.phone;
       user.address = address || user.address;
       user.email = email || user.email;
-      user.password = password !== '' ? hash : user.password;
+      user.password = password !== "" ? hash : user.password;
       user.country = country || user.country;
       user.city = city || user.city;
       user.zipCode = zipCode || user.zipCode;
@@ -88,9 +102,10 @@ module.exports.userController = {
       await user.save();
 
       res.json(user);
-
     } catch (error) {
-      res.status(500).json({ error: "Ошибка при обновлении данных пользователя" });
+      res
+        .status(500)
+        .json({ error: "Ошибка при обновлении данных пользователя" });
     }
   },
 
