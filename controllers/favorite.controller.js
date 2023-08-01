@@ -26,13 +26,16 @@ module.exports.favoriteController = {
         return res.json("delete cloth");
       }
 
-      const data = await Favorite.findOneAndUpdate(
+      await Favorite.findOneAndUpdate(
         { userId: req.user.id },
         {
           $push: { cloth: req.params.id },
         }
       ).populate("cloth");
-      res.json(data);
+
+      const data = await Favorite.findOne({userId: req.user.id}).populate("cloth")
+
+      res.json(data.cloth.pop());
     } catch (error) {
       res.json(`${error}: add favorite error`);
     }
