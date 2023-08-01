@@ -5,6 +5,7 @@ const router = Router();
 
 router.get("/cloth", clothesController.getCloth); // вывод всей одежды
 router.get("/cloth/:id", clothesController.getOneCloth); // вывод одной одежды
+router.delete("/cloth/:id", clothesController.deleteCloth); // Удалить одежду
 router.get("/cloth/category/:id", clothesController.getClothByCategory); // вывод одежды по категории
 router.post(
   "/cloth",

@@ -26,6 +26,14 @@ module.exports.clothesController = {
       res.json({ error: error.message });
     }
   },
+  deleteCloth: async (req, res) => {
+    try {
+      const data = await Cloth.findByIdAndDelete(req.params.id);
+      res.json(data);
+    } catch (error) {
+      res.json({ error: error.message });
+    }
+  },
   addCloth: async (req, res) => {
     try {
       const addingCloth = await Cloth.create({
